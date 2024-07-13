@@ -37,6 +37,7 @@ const theBot: interfaces.Bot = botBase.composeBotsWithUsernameUpdater(
 const client = new tg.Telegraf(auth.bot_token);
 
 for (const cmd in theBot.handlers) {
+  const selected = theBot.handlers[cmd];
   console.log(`* register command ${cmd}`);
   client.command(cmd, async (ctx) => {
     const username = ctx.from.username;
@@ -48,16 +49,6 @@ for (const cmd in theBot.handlers) {
     }
 
     const msg = ctx.message.text.trim();
-    const selected = interfaces.selectHandler(theBot, msg);
-    if (selected === undefined) {
-      return;
-    }
-
-    if (selected.handler === undefined) {
-      console.log(`* ${username} Unknown command ${msg}`);
-      return;
-    }
-
     const userId = ctx.from.id;
     const chatMember = await ctx.telegram.getChatMember(ctx.chat.id, userId);
     let chatContext = {
@@ -69,9 +60,9 @@ for (const cmd in theBot.handlers) {
     };
     const response = interfaces.callHandler(
       theBot,
-      selected.handler,
+      selected,
       chatContext,
-      selected.args
+      interfaces.splitCommand(msg)
     );
     if (response !== undefined) {
       await ctx.reply(response);
