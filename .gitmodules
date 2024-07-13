@@ -1,0 +1,3 @@
+[submodule "roulette-base-bot"]
+	path = roulette-base-bot
+	url = ../roulette-base-bot

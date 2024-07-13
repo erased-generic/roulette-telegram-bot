@@ -1,0 +1,19 @@
+{
+  "name": "roulette-telegram-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/src/bot.js",
+  "scripts": {
+    "build": "tsc -b && copyfiles -u 2 \"roulette-base-bot/dist/**/*\" dist/ && copyfiles -s -u 2 \"roulette-base-bot/data/**/*\" data/",
+    "start": "npm run build && node dist/src/bot.js",
+    "test": "npm run build && node dist/test/test.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.12.7",
+    "copyfiles": "^2.4.1",
+    "telegraf": "^4.16.3",
+    "typescript": "^5.4.5"
+  }
+}
