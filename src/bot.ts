@@ -47,7 +47,7 @@ function createBot(
   return theBot;
 }
 
-const botManager = new botBase.BotManager(createBot, botBase.createMemoryUserData);
+const botManager = new botBase.BotManager(createBot, botBase.createFileUserData);
 const client = new tg.Telegraf(auth.bot_token);
 
 for (const cmd in createBot("", botBase.createMemoryUserData("")).handlers) {
