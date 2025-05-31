@@ -4,9 +4,10 @@
   "description": "",
   "main": "dist/src/bot.js",
   "scripts": {
-    "build": "tsc -b && copyfiles -u 2 \"roulette-base-bot/dist/**/*\" dist/ && copyfiles -s -u 2 \"roulette-base-bot/data/**/*\" data/",
-    "start": "npm run build && node dist/src/bot.js",
-    "test": "npm run build && node dist/test/test.js"
+    "build": "tsc -b && copyfiles -u 2 \"roulette-base-bot/dist/**/*\" dist/",
+    "data": "copyfiles -u 1 \"data-public/**/*\" data/public && copyfiles -u 2 \"roulette-base-bot/data-public/**/*\" data/public",
+    "start": "npm run build && npm run data && node dist/src/bot.js",
+    "test": "npm run build && npm run data && node dist/test/test.js"
   },
   "author": "",
   "license": "MIT",

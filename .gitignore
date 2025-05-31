@@ -1,5 +1,6 @@
 node_modules/
 dist/
-data/auth.json
-data/table.json
-data/funfacts.json
+data/**/*
+!data/public
+data/public/**/*
+!data/public/.gitkeep

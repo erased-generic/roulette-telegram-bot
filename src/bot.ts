@@ -8,7 +8,7 @@ import * as anagramsDuelImpl from './bot/anagramsduelimpl';
 import * as funFactsBot from './bot/funfactsbot';
 import * as miscBot from './bot/miscbot';
 import * as botBase from "./bot/botbase";
-import * as userDataModule from "./util/userdata";
+import * as userData from "./util/userdata";
 
 import * as fs from "fs";
 import * as tg from "telegraf";
@@ -18,38 +18,45 @@ interface AuthParams {
   username: string;
   bot_token: string;
 }
-const authPath = "data/auth.json";
+const authPath = "data/private/auth.json";
 const auth: AuthParams = JSON.parse(fs.readFileSync(authPath, "utf8"));
 
-const userData = new userDataModule.FileUserData<botBase.PerUserData>(
-  botBase.onReadUserData,
-  "data/table.json"
-);
-const botContext = new botBase.BotBaseContext("/", auth.username, userData);
-const theBot: interfaces.Bot = botBase.composeBotsWithUsernameUpdater(
-  [
-    (ctx) => new balanceBot.BalanceBot(ctx),
-    (ctx) => new rouletteBot.RouletteBot(ctx),
-    (ctx) => new predictionBot.PredictionBot(ctx, 100),
-    (ctx) =>
-      new duelBot.DuelBot(ctx, 0.5, {
-        bj: new blackjackDuelImpl.BlackJackDuelImpl(),
-        anagrams: new anagramsDuelImpl.AnagramsDuelImpl(
-          "data/public/anagrams.json"
-        ),
-      }),
-    (ctx) => new funFactsBot.FunFactsBot(ctx, "data/public/funfacts.json"),
-    (ctx) => new miscBot.MiscBot(ctx),
-  ],
-  botContext
-);
+function createBot(
+  channel: string,
+  data: userData.UserData<botBase.PerUserData>
+): interfaces.Bot {
+  const botContext = new botBase.BotBaseContext("/", auth.username, data);
+  const theBot: interfaces.Bot = botBase.composeBotsWithUsernameUpdater(
+    [
+      (ctx) => new balanceBot.BalanceBot(ctx),
+      (ctx) => new rouletteBot.RouletteBot(ctx),
+      (ctx) => new predictionBot.PredictionBot(ctx, 100),
+      (ctx) =>
+        new duelBot.DuelBot(ctx, 0.5, {
+          bj: new blackjackDuelImpl.BlackJackDuelImpl(),
+          anagrams: new anagramsDuelImpl.AnagramsDuelImpl(
+            "data/public/anagrams.json"
+          ),
+        }),
+      (ctx) => new funFactsBot.FunFactsBot(ctx, "data/public/funfacts.json"),
+      (ctx) => new miscBot.MiscBot(ctx),
+    ],
+    botContext
+  );
 
+  return theBot;
+}
+
+const botManager = new botBase.BotManager(createBot, botBase.createMemoryUserData);
 const client = new tg.Telegraf(auth.bot_token);
 
-for (const cmd in theBot.handlers) {
-  const selected = theBot.handlers[cmd];
+for (const cmd in createBot("", botBase.createMemoryUserData("")).handlers) {
   console.log(`* register command ${cmd}`);
   client.command(cmd, async (ctx) => {
+    const channel = ctx.chat.id.toString();
+    const theBot = botManager.getOrCreateBot(channel);
+    const selected = theBot.handlers[cmd];
+
     const username = ctx.from.username;
     console.log(`${username}: ${ctx.message.text}`);
 
