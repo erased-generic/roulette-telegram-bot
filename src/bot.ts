@@ -2,8 +2,11 @@ import * as interfaces from "./util/interfaces";
 import * as balanceBot from "./bot/balancebot";
 import * as rouletteBot from "./bot/roulettebot";
 import * as predictionBot from "./bot/predictionbot";
-import * as blackjackDuelBot from "./bot/blackjackduelbot";
-import * as funFactsBot from "./bot/funfactsbot";
+import * as duelBot from './bot/duelbot';
+import * as blackjackDuelImpl from "./bot/blackjackduelimpl";
+import * as anagramsDuelImpl from './bot/anagramsduelimpl';
+import * as funFactsBot from './bot/funfactsbot';
+import * as miscBot from './bot/miscbot';
 import * as botBase from "./bot/botbase";
 import * as userDataModule from "./util/userdata";
 
@@ -28,8 +31,15 @@ const theBot: interfaces.Bot = botBase.composeBotsWithUsernameUpdater(
     (ctx) => new balanceBot.BalanceBot(ctx),
     (ctx) => new rouletteBot.RouletteBot(ctx),
     (ctx) => new predictionBot.PredictionBot(ctx, 100),
-    (ctx) => new blackjackDuelBot.BlackJackDuelBot(ctx),
-    (ctx) => new funFactsBot.FunFactsBot(ctx, "data/funfacts.json"),
+    (ctx) =>
+      new duelBot.DuelBot(ctx, 0.5, {
+        bj: new blackjackDuelImpl.BlackJackDuelImpl(),
+        anagrams: new anagramsDuelImpl.AnagramsDuelImpl(
+          "data/public/anagrams.json"
+        ),
+      }),
+    (ctx) => new funFactsBot.FunFactsBot(ctx, "data/public/funfacts.json"),
+    (ctx) => new miscBot.MiscBot(ctx),
   ],
   botContext
 );
