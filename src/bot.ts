@@ -5,6 +5,7 @@ import * as predictionBot from "./bot/predictionbot";
 import * as duelBot from './bot/duelbot';
 import * as blackjackDuelImpl from "./bot/blackjackduelimpl";
 import * as anagramsDuelImpl from './bot/anagramsduelimpl';
+import * as wordleDuelImpl from './bot/wordleduelimpl';
 import * as funFactsBot from './bot/funfactsbot';
 import * as miscBot from './bot/miscbot';
 import * as botBase from "./bot/botbase";
@@ -36,6 +37,10 @@ function createBot(
           bj: new blackjackDuelImpl.BlackJackDuelImpl(),
           anagrams: new anagramsDuelImpl.AnagramsDuelImpl(
             "data/public/anagrams.json"
+          ),
+          wordle: new wordleDuelImpl.WordleDuelImpl(
+            "data/public/wordle_targets.json",
+            "data/public/wordle_guesses.json"
           ),
         }),
       (ctx) => new funFactsBot.FunFactsBot(ctx, "data/public/funfacts.json"),
@@ -86,8 +91,17 @@ for (const cmd in createBot("", botBase.createMemoryUserData("")).handlers) {
     }
   });
 }
-client.launch();
 
-// Enable graceful stop
-process.once("SIGINT", () => client.stop("SIGINT"));
-process.once("SIGTERM", () => client.stop("SIGTERM"));
+client.launch(onConnectedHandler);
+
+process.once("SIGINT", () => doDisconnect("SIGINT"));
+process.once("SIGTERM", () => doDisconnect("SIGTERM"));
+
+function onConnectedHandler() {
+  console.log("* Connected");
+}
+
+function doDisconnect(reason?: string) {
+  client.stop(reason);
+  console.log("* Disconnected");
+}
