@@ -1,0 +1,41 @@
+userData: &userData
+  name: UserData
+
+botUsername: &botUsername
+  name: BotUsername
+
+defaultConfig: &defaultConfig
+  botContext:
+    name: BotBaseContext
+    cmdMarker: "!"
+    botUsername: *botUsername
+    userData: *userData
+
+bots:
+  - name: UsernameUpdaterBot
+    <<: *defaultConfig
+  - name: BalanceBot
+    <<: *defaultConfig
+  - name: RouletteBot
+    <<: *defaultConfig
+  - name: PredictionBot
+    <<: *defaultConfig
+    n: 100
+  - name: DuelBot
+    <<: *defaultConfig
+    playerShuffleChance: 0.5
+    duelImpls:
+      bj:
+        name: BlackJackDuelImpl
+      anagrams:
+        name: AnagramsDuelImpl
+        anagrams: "data/public/anagrams.json"
+      wordle:
+        name: WordleDuelImpl
+        validWordleTargets: "data/public/wordle_targets.json"
+        validWordleGuesses: "data/public/wordle_guesses.json"
+  - name: FunFactsBot
+    <<: *defaultConfig
+    filePath: "data/public/funfacts.json"
+  - name: MiscBot
+    <<: *defaultConfig

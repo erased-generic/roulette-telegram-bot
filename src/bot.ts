@@ -1,18 +1,10 @@
 import * as interfaces from "./util/interfaces";
-import * as balanceBot from "./bot/balancebot";
-import * as rouletteBot from "./bot/roulettebot";
-import * as predictionBot from "./bot/predictionbot";
-import * as duelBot from './bot/duelbot';
-import * as blackjackDuelImpl from "./bot/blackjackduelimpl";
-import * as anagramsDuelImpl from './bot/anagramsduelimpl';
-import * as wordleDuelImpl from './bot/wordleduelimpl';
-import * as funFactsBot from './bot/funfactsbot';
-import * as miscBot from './bot/miscbot';
 import * as botBase from "./bot/botbase";
-import * as userData from "./util/userdata";
 
 import * as fs from "fs";
 import * as tg from "telegraf";
+
+import './bot/all_bots';
 
 // Define configuration options
 interface AuthParams {
@@ -22,40 +14,19 @@ interface AuthParams {
 const authPath = "data/private/auth.json";
 const auth: AuthParams = JSON.parse(fs.readFileSync(authPath, "utf8"));
 
-function createBot(
-  channel: string,
-  data: userData.UserData<botBase.PerUserData>
-): interfaces.Bot {
-  const botContext = new botBase.BotBaseContext("/", auth.username, data);
-  const theBot: interfaces.Bot = botBase.composeBotsWithUsernameUpdater(
-    [
-      (ctx) => new balanceBot.BalanceBot(ctx),
-      (ctx) => new rouletteBot.RouletteBot(ctx),
-      (ctx) => new predictionBot.PredictionBot(ctx, 100),
-      (ctx) =>
-        new duelBot.DuelBot(ctx, 0.5, {
-          bj: new blackjackDuelImpl.BlackJackDuelImpl(),
-          anagrams: new anagramsDuelImpl.AnagramsDuelImpl(
-            "data/public/anagrams.json"
-          ),
-          wordle: new wordleDuelImpl.WordleDuelImpl(
-            "data/public/wordle_targets.json",
-            "data/public/wordle_guesses.json"
-          ),
-        }),
-      (ctx) => new funFactsBot.FunFactsBot(ctx, "data/public/funfacts.json"),
-      (ctx) => new miscBot.MiscBot(ctx),
-    ],
-    botContext
-  );
-
-  return theBot;
-}
-
-const botManager = new botBase.BotManager(createBot, botBase.createFileUserData);
+const botManager = new botBase.BotManager(
+  botBase.createConfigurableBotFactory(
+    auth.username,
+    "data/public/config.yaml"
+  ),
+  botBase.createFileUserData
+);
 const client = new tg.Telegraf(auth.bot_token);
 
-for (const cmd in createBot("", botBase.createMemoryUserData("")).handlers) {
+for (const cmd in botBase.createConfigurableBotFactory(
+  "",
+  "data/public/config.yaml"
+)("", botBase.createMemoryUserData("")).handlers) {
   console.log(`* register command ${cmd}`);
   client.command(cmd, async (ctx) => {
     const channel = ctx.chat.id.toString();
