@@ -9,7 +9,7 @@ defaultConfig: &defaultConfig
     name: BotBaseContext
     cmdMarker: "!"
     botUsername: *botUsername
-    userData: *userData
+  userData: *userData
 
 bots:
   - name: UsernameUpdaterBot
@@ -39,3 +39,6 @@ bots:
     filePath: "data/public/funfacts.json"
   - name: MiscBot
     <<: *defaultConfig
+  - name: FrameBot
+    <<: *defaultConfig
+    filePath: "data/public/frames.json"
