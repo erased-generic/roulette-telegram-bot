@@ -7,7 +7,7 @@ botUsername: &botUsername
 defaultConfig: &defaultConfig
   botContext:
     name: BotBaseContext
-    cmdMarker: "!"
+    cmdMarker: "/"
     botUsername: *botUsername
   userData: *userData
 
