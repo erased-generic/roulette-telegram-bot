@@ -15,6 +15,6 @@ function testHandler(context: ChatContext, command: string, expected: RegExp) {
   return instanceTestHandler(instance, context, command, expected);
 }
 
-testHandler(aChatContext, "!ping", /pong/);
-testHandler(aChatContext, "!help", /help/);
-testHandler(aChatContext, "!balance", /You have 99 points/);
+testHandler(aChatContext, "/ping", /pong/);
+testHandler(aChatContext, "/help", /help/);
+testHandler(aChatContext, "/balance", /You have 99 points/);
